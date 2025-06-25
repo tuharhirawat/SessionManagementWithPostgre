@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<h3>Login</h3>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<form asp-action="Login" method="post">
+    @Html.AntiForgeryToken()
+
+    <div>
+        <label>Username</label>
+        <input type="text" name="username" required />
+    </div>
+    <div>
+        <label>Password</label>
+        <input type="password" name="password" required />
+    </div>
+
+    <button type="submit">Login</button>
+</form>
+
+<form asp-action="ForgotPassword" method="post" class="mt-2">
+    @Html.AntiForgeryToken()
+    <div>
+        <label>Forgot Password? Enter Email or Username</label>
+        <input type="text" name="usernameOrEmail" required />
+    </div>
+    <button type="submit">Send Reset Link</button>
+</form>
