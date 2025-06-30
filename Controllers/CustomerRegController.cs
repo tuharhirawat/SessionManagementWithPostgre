@@ -17,13 +17,17 @@ namespace InternalProj.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserName") != null)
+            {
+                return RedirectToAction("Dashboard", "Home"); // or "StaffReg", "Create" — change as needed
+            }
+
             var model = new CustomerRegViewModel
             {
                 StateMasterRegs = _context.StateMasters.Where(s => s.Active == "Y").ToList(),
                 RegionMasterRegs = _context.RegionMasters.Where(r => r.Active == "Y").ToList(),
                 PhoneTypes = _context.PhoneTypes.Where(p => p.Active == "Y").ToList(),
-                CustomerCategories = _context.CustomerCategories.Where(p => p.Active == "Y").ToList(),
-
+                CustomerCategories = _context.CustomerCategories.Where(p => p.Active == "Y").ToList()
             };
 
             return View(model);

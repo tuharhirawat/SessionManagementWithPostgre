@@ -23,6 +23,30 @@ namespace Staffregistration24.Controllers
             return View();
         }
 
+        public IActionResult Dashboard()
+        {
+            var username = HttpContext.Session.GetString("UserName");
+            if (string.IsNullOrEmpty(username))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            ViewBag.UserName = username;
+            return View();
+        }
+
+        public IActionResult Features()
+        {
+            var username = HttpContext.Session.GetString("UserName");
+            if (string.IsNullOrEmpty(username))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            ViewBag.UserName = username;
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
