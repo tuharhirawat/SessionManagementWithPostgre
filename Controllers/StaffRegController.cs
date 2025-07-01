@@ -30,6 +30,7 @@ namespace InternalProj.Controllers
                 Branches = await _context.Branches.Where(b => b.Active == "Y").ToListAsync(),
                 PhoneTypes = await _context.PhoneTypes.Where(p => p.Active == "Y").ToListAsync(),
                 CustomerCategories = await _context.CustomerCategories.Where(p => p.Active == "Y").ToListAsync()
+
             };
 
             return View(model);
