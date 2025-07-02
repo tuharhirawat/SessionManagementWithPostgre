@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using ZoomColorLab.Models;
 
 namespace ZoomColorLab.Models
 {
@@ -7,7 +6,7 @@ namespace ZoomColorLab.Models
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        // Customer related tables
+        // Customer-related tables
         public DbSet<CustomerReg> CustomerRegs { get; set; }
         public DbSet<RegionMaster> RegionMasters { get; set; }
         public DbSet<StateMaster> StateMasters { get; set; }
@@ -16,7 +15,7 @@ namespace ZoomColorLab.Models
         public DbSet<PhoneType> PhoneTypes { get; set; }
         public DbSet<CustomerCategory> CustomerCategories { get; set; }
 
-        // Staff related tables
+        // Staff-related tables
         public DbSet<StaffReg> StaffRegs { get; set; }
         public DbSet<StaffAddress> StaffAddresses { get; set; }
         public DbSet<StaffContact> StaffContacts { get; set; }
@@ -29,12 +28,15 @@ namespace ZoomColorLab.Models
         public DbSet<Branch> Branches { get; set; }
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
+        // Join tables for many-to-many relationships
+        public DbSet<StaffDepartment> StaffDepartments { get; set; }
+        public DbSet<StaffDesignation> StaffDesignations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Region and State Relationship
+            // Region and State relationship
             modelBuilder.Entity<RegionMaster>()
                 .HasOne(r => r.State)
                 .WithMany(s => s.Regions)
@@ -45,7 +47,7 @@ namespace ZoomColorLab.Models
                 .Property(s => s.Active)
                 .HasDefaultValue("Y");
 
-            // Customer Relationships
+            // Customer relationships
             modelBuilder.Entity<CustomerReg>()
                 .HasOne(c => c.Address)
                 .WithOne(a => a.Customer)
@@ -69,7 +71,7 @@ namespace ZoomColorLab.Models
                 .HasForeignKey(cc => cc.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Staff Relationships
+            // Staff relationships
             modelBuilder.Entity<StaffReg>()
                 .HasMany(s => s.Addresses)
                 .WithOne(a => a.Staff)
@@ -101,22 +103,38 @@ namespace ZoomColorLab.Models
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<StaffReg>()
-                .HasOne(s => s.Department)
-                .WithMany()
-                .HasForeignKey(s => s.DeptId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<StaffReg>()
-                .HasOne(s => s.Designation)
-                .WithMany()
-                .HasForeignKey(s => s.DesignationId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<StaffReg>()
                 .HasOne(s => s.Branch)
                 .WithMany(b => b.Staffs)
                 .HasForeignKey(s => s.BranchId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Many-to-many: StaffDepartments
+            modelBuilder.Entity<StaffDepartment>()
+                .HasKey(sd => new { sd.StaffId, sd.DeptId });
+
+            modelBuilder.Entity<StaffDepartment>()
+                .HasOne(sd => sd.Staff)
+                .WithMany(s => s.StaffDepartments)
+                .HasForeignKey(sd => sd.StaffId);
+
+            modelBuilder.Entity<StaffDepartment>()
+                .HasOne(sd => sd.Department)
+                .WithMany()
+                .HasForeignKey(sd => sd.DeptId);
+
+            // Many-to-many: StaffDesignations
+            modelBuilder.Entity<StaffDesignation>()
+                .HasKey(sd => new { sd.StaffId, sd.DesignationId });
+
+            modelBuilder.Entity<StaffDesignation>()
+                .HasOne(sd => sd.Staff)
+                .WithMany(s => s.StaffDesignations)
+                .HasForeignKey(sd => sd.StaffId);
+
+            modelBuilder.Entity<StaffDesignation>()
+                .HasOne(sd => sd.Designation)
+                .WithMany()
+                .HasForeignKey(sd => sd.DesignationId);
 
             // Default values
             modelBuilder.Entity<StaffReg>()
@@ -127,12 +145,10 @@ namespace ZoomColorLab.Models
                 .Property(c => c.Active)
                 .HasDefaultValue("Y");
 
-            // Indexes for performance optimization (optional, based on usage)
+            // Indexes
             modelBuilder.Entity<StaffReg>()
                 .HasIndex(s => s.StaffId)
                 .IsUnique();
-
         }
     }
 }
-
