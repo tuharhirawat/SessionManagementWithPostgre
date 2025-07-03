@@ -1,0 +1,63 @@
+﻿@model ZoomColorLab.Models.StaffReg
+
+@{
+    ViewData["Title"] = "Staff Details";
+}
+
+<h2>Staff Details</h2>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Full Name</th>
+        <td>@Model.FirstName @Model.LastName</td>
+    </tr>
+    <tr>
+        <th>Branch</th>
+        <td>@Model.Branch?.BranchName</td>
+    </tr>
+    <tr>
+        <th>Departments</th>
+        <td>
+            @foreach (var dept in Model.StaffDepartments)
+            {
+                <span class="badge bg-info">@dept.Department?.Name</span>
+            }
+        </td>
+    </tr>
+    <tr>
+        <th>Designations</th>
+        <td>
+            @foreach (var desg in Model.StaffDesignations)
+            {
+                <span class="badge bg-secondary">@desg.Designation?.Name</span>
+            }
+        </td>
+    </tr>
+    <tr>
+        <th>Phone</th>
+        <td>@Model.Contacts?.FirstOrDefault()?.Phone1</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>@Model.Contacts?.FirstOrDefault()?.Email</td>
+    </tr>
+    <tr>
+        <th>Address</th>
+        <td>
+            @{
+                var address = Model.Addresses?.FirstOrDefault();
+            }
+            @address?.Address1, @address?.Address2
+        </td>
+    </tr>
+    <tr>
+        <th>Date of Birth</th>
+        <td>@Model.DOB?.ToString("dd-MMM-yyyy")</td>
+    </tr>
+    <tr>
+        <th>Date of Joining</th>
+        <td>@Model.DOJ?.ToString("dd-MMM-yyyy")</td>
+    </tr>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

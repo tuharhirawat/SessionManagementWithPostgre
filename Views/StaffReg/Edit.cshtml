@@ -1,0 +1,117 @@
+﻿@* @model ZoomColorLab.Models.StaffRegViewModel
+@{
+    ViewData["Title"] = "Edit Staff";
+    var address = Model.Staff.Addresses?.FirstOrDefault() ?? new ZoomColorLab.Models.StaffAddress();
+    var contact = Model.Staff.Contacts?.FirstOrDefault() ?? new ZoomColorLab.Models.StaffContact();
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Staff.StaffId" />
+
+    <div class="form-group">
+        <label asp-for="Staff.FirstName"></label>
+        <input asp-for="Staff.FirstName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Staff.LastName"></label>
+        <input asp-for="Staff.LastName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Staff.DOB"></label>
+        <input asp-for="Staff.DOB" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Staff.DOJ"></label>
+        <input asp-for="Staff.DOJ" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Staff.Remarks"></label>
+        <textarea asp-for="Staff.Remarks" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Staff.BranchId"></label>
+        <select asp-for="Staff.BranchId" class="form-control"
+                asp-items="@(new SelectList(Model.Branches, "BranchId", "BranchName"))"></select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Staff.CategoryId"></label>
+        <select asp-for="Staff.CategoryId" class="form-control"
+                asp-items="@(new SelectList(Model.CustomerCategories, "CategoryId", "CategoryName"))"></select>
+    </div>
+
+    <h5>Address</h5>
+    <input type="hidden" name="Staff.Addresses[0].StaffId" value="@Model.Staff.StaffId" />
+    <div class="form-group">
+        <label>Address 1</label>
+        <input name="Staff.Addresses[0].Address1" value="@address.Address1" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Address 2</label>
+        <input name="Staff.Addresses[0].Address2" value="@address.Address2" class="form-control" />
+    </div>
+
+    <h5>Contact</h5>
+    <input type="hidden" name="Staff.Contacts[0].StaffId" value="@Model.Staff.StaffId" />
+    <div class="form-group">
+        <label>Phone 1</label>
+        <input name="Staff.Contacts[0].Phone1" value="@contact.Phone1" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Phone 2</label>
+        <input name="Staff.Contacts[0].Phone2" value="@contact.Phone2" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>WhatsApp</label>
+        <input name="Staff.Contacts[0].Whatsapp" value="@contact.Whatsapp" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Email</label>
+        <input name="Staff.Contacts[0].Email" value="@contact.Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Phone Type</label>
+        <select name="Staff.Contacts[0].PhoneTypeId" class="form-control"
+                asp-items="@(new SelectList(Model.PhoneTypes, "PhoneTypeId", "PhoneTypeName", contact.PhoneTypeId))">
+            <option value="">-- Select Phone Type --</option>
+        </select>
+    </div>
+
+    <h5>Departments</h5>
+    @foreach (var dept in Model.Departments)
+    {
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="SelectedDeptIds" value="@dept.DeptId"
+                   @(Model.SelectedDeptIds.Contains(dept.DeptId) ? "checked" : "") />
+            <label class="form-check-label">@dept.Name</label>
+        </div>
+    }
+
+    <h5>Designations</h5>
+    @foreach (var desig in Model.Designations)
+    {
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="SelectedDesignationIds" value="@desig.DesignationId"
+                   @(Model.SelectedDesignationIds.Contains(desig.DesignationId) ? "checked" : "") />
+            <label class="form-check-label">@desig.Name</label>
+        </div>
+    }
+
+    <br />
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form> *@

@@ -6,6 +6,7 @@ namespace ZoomColorLab.Models
 {
     public class StaffRegViewModel
     {
+        //public StaffReg Staff { get; set; }
         public IEnumerable<DeptMaster> Departments { get; set; } = new List<DeptMaster>();
         public IEnumerable<DesignationMaster> Designations { get; set; } = new List<DesignationMaster>();
         public IEnumerable<Branch> Branches { get; set; } = new List<Branch>();

@@ -118,6 +118,7 @@
             <div class="form-heading">Staff Registration</div>
 
             <form id="staffForm" asp-action="Create" method="post" novalidate>
+                @Html.AntiForgeryToken()
                 <div class="two-col-grid">
                     <div><label class="form-label">First Name</label><input type="text" name="FirstName" class="form-control" required /></div>
                     <div><label class="form-label">Last Name</label><input type="text" name="LastName" class="form-control" required /></div>
@@ -295,7 +296,9 @@
                 isValid = false;
             }
 
-            if (isValid) form.submit();
+            if (isValid) {
+            form.submit();
+            }
 
             function showError(input, show) {
                 let errorDiv = input.parentElement.querySelector('.validation-error');

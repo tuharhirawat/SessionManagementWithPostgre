@@ -102,9 +102,7 @@ namespace ZoomColorLab.Controllers
                 staffCredentials.Password = passwordHasher.HashPassword(staffCredentials, Password);
                 await _context.StaffCredentials.AddAsync(staffCredentials);
                 rows = await _context.SaveChangesAsync();
-                Console.WriteLine($"Saved StaffCredentials, rows affected: {rows}");
 
-                // Save many-to-many: Departments
                 if (model.SelectedDeptIds != null && model.SelectedDeptIds.Count > 0)
                 {
                     foreach (var deptId in model.SelectedDeptIds)
@@ -117,14 +115,8 @@ namespace ZoomColorLab.Controllers
                         await _context.StaffDepartments.AddAsync(staffDept);
                     }
                     rows = await _context.SaveChangesAsync();
-                    Console.WriteLine($"Saved StaffDepartments, rows affected: {rows}");
-                }
-                else
-                {
-                    Console.WriteLine("No Departments selected.");
                 }
 
-                // Save many-to-many: Designations
                 if (model.SelectedDesignationIds != null && model.SelectedDesignationIds.Count > 0)
                 {
                     foreach (var desigId in model.SelectedDesignationIds)
@@ -138,13 +130,9 @@ namespace ZoomColorLab.Controllers
                     }
                     rows = await _context.SaveChangesAsync();
                 }
-                else
-                {
-                    Console.WriteLine("No Designations selected.");
-                }
 
                 TempData["SuccessMessage"] = "Staff registration successful!";
-                return RedirectToAction("Create");
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
@@ -175,5 +163,221 @@ namespace ZoomColorLab.Controllers
             }
             return string.Join(" --> ", messages);
         }
+
+
+        //all view
+        public async Task<IActionResult> Index()
+        {
+            var staffList = await _context.StaffRegs
+                .Include(s => s.Branch)
+                .Include(s => s.StaffDepartments).ThenInclude(sd => sd.Department)
+                .Include(s => s.StaffDesignations).ThenInclude(sd => sd.Designation)
+                .Include(s => s.Addresses)
+                .Include(s => s.Contacts)
+                .Where(s => s.Active == "Y")
+                .ToListAsync();
+
+            return View(staffList);
+        }
+
+        //view by id
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var staff = await _context.StaffRegs
+                .Include(s => s.Branch)
+                .Include(s => s.StaffDepartments).ThenInclude(sd => sd.Department)
+                .Include(s => s.StaffDesignations).ThenInclude(sd => sd.Designation)
+                .Include(s => s.Addresses)
+                .Include(s => s.Contacts)
+                .FirstOrDefaultAsync(s => s.StaffId == id);
+
+            if (staff == null)
+                return NotFound();
+
+            return View(staff);
+        }
+
+
+
+        //get details to display in edit 
+        //[HttpGet]
+        //public async Task<IActionResult> Edit(int? id)
+        //{
+        //    if (id == null)
+        //        return NotFound();
+
+        //    var staff = await _context.StaffRegs
+        //        .Include(s => s.StaffDepartments)
+        //        .Include(s => s.StaffDesignations)
+        //        .Include(s => s.Addresses)
+        //        .Include(s => s.Contacts)
+        //        .FirstOrDefaultAsync(s => s.StaffId == id);
+
+        //    if (staff == null)
+        //        return NotFound();
+
+        //    var model = new StaffRegViewModel
+        //    {
+        //        Staff = staff,
+        //        SelectedDeptIds = staff.StaffDepartments.Select(sd => sd.DeptId).ToList(),
+        //        SelectedDesignationIds = staff.StaffDesignations.Select(sd => sd.DesignationId).ToList()
+        //    };
+
+        //    await ReloadDropdowns(model); // Load dropdowns like Departments, Designations, Branches etc.
+
+        //    return View(model);
+        //}
+
+
+        ////post edit details to DB
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, StaffRegViewModel model)
+        //{
+        //    if (id != model.Staff.StaffId)
+        //        return NotFound();
+
+        //    try
+        //    {
+        //        var staff = await _context.StaffRegs
+        //            .Include(s => s.StaffDepartments)
+        //            .Include(s => s.StaffDesignations)
+        //            .Include(s => s.Addresses)
+        //            .Include(s => s.Contacts)
+        //            .FirstOrDefaultAsync(s => s.StaffId == id);
+
+        //        if (staff == null)
+        //            return NotFound();
+
+        //        // Basic Info
+        //        staff.FirstName = model.Staff.FirstName;
+        //        staff.LastName = model.Staff.LastName;
+        //        staff.DOB = model.Staff.DOB?.ToUniversalTime();
+        //        staff.DOJ = model.Staff.DOJ?.ToUniversalTime();
+        //        staff.Remarks = model.Staff.Remarks;
+        //        staff.BranchId = model.Staff.BranchId;
+        //        staff.CategoryId = model.Staff.CategoryId;
+
+        //        // Address
+        //        var newAddr = model.Staff.Addresses?.FirstOrDefault();
+        //        var existingAddr = staff.Addresses?.FirstOrDefault();
+        //        if (existingAddr != null && newAddr != null)
+        //        {
+        //            existingAddr.Address1 = newAddr.Address1;
+        //            existingAddr.Address2 = newAddr.Address2;
+        //        }
+
+        //        // Contact
+        //        var newContact = model.Staff.Contacts?.FirstOrDefault();
+        //        var existingContact = staff.Contacts?.FirstOrDefault();
+        //        if (existingContact != null && newContact != null)
+        //        {
+        //            existingContact.Phone1 = newContact.Phone1;
+        //            existingContact.Phone2 = newContact.Phone2;
+        //            existingContact.Whatsapp = newContact.Whatsapp;
+        //            existingContact.Email = newContact.Email;
+        //            existingContact.PhoneTypeId = newContact.PhoneTypeId;
+        //        }
+
+        //        // Departments (many-to-many)
+        //        _context.StaffDepartments.RemoveRange(staff.StaffDepartments);
+        //        if (model.SelectedDeptIds.Any())
+        //        {
+        //            staff.StaffDepartments = model.SelectedDeptIds.Select(id => new StaffDepartment
+        //            {
+        //                StaffId = staff.StaffId,
+        //                DeptId = id
+        //            }).ToList();
+        //        }
+
+        //        // Designations (many-to-many)
+        //        _context.StaffDesignations.RemoveRange(staff.StaffDesignations);
+        //        if (model.SelectedDesignationIds.Any())
+        //        {
+        //            staff.StaffDesignations = model.SelectedDesignationIds.Select(id => new StaffDesignation
+        //            {
+        //                StaffId = staff.StaffId,
+        //                DesignationId = id
+        //            }).ToList();
+        //        }
+
+        //        await _context.SaveChangesAsync();
+        //        TempData["SuccessMessage"] = "Staff updated successfully!";
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["ErrorMessage"] = "Error: " + ex.Message;
+        //        await ReloadDropdowns(model);
+        //        return View(model);
+        //    }
+        //}
+
+
+        //// GET: Confirm Deletion (optional, if you want a separate page – not used here)
+        //[HttpGet]
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null) return NotFound();
+
+        //    var staff = await _context.StaffRegs
+        //        .Include(s => s.StaffDepartments)
+        //        .Include(s => s.StaffDesignations)
+        //        .Include(s => s.Addresses)
+        //        .Include(s => s.Contacts)
+        //        .FirstOrDefaultAsync(s => s.StaffId == id);
+
+        //    if (staff == null) return NotFound();
+
+        //    // Optional: return View(staff); // if you want a delete confirmation view
+        //    return View(staff);
+        //}
+
+        //// POST: Delete confirmed
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    try
+        //    {
+        //        var staff = await _context.StaffRegs
+        //            .Include(s => s.StaffDepartments)
+        //            .Include(s => s.StaffDesignations)
+        //            .Include(s => s.Addresses)
+        //            .Include(s => s.Contacts)
+        //            .Include(s => s.Credentials)
+        //            .FirstOrDefaultAsync(s => s.StaffId == id);
+
+        //        if (staff == null)
+        //        {
+        //            TempData["ErrorMessage"] = "Staff not found.";
+        //            return RedirectToAction(nameof(Index));
+        //        }
+
+        //        // Remove related entries
+        //        _context.StaffDepartments.RemoveRange(staff.StaffDepartments);
+        //        _context.StaffDesignations.RemoveRange(staff.StaffDesignations);
+        //        _context.StaffAddresses.RemoveRange(staff.Addresses);
+        //        _context.StaffContacts.RemoveRange(staff.Contacts);
+        //        _context.StaffCredentials.RemoveRange(staff.Credentials);
+
+        //        // Remove the main Staff
+        //        _context.StaffRegs.Remove(staff);
+
+        //        await _context.SaveChangesAsync();
+
+        //        TempData["SuccessMessage"] = "Staff deleted successfully!";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["ErrorMessage"] = "Error deleting staff: " + ex.Message;
+        //    }
+
+        //    return RedirectToAction(nameof(Index));
+        //}
+
     }
 }
