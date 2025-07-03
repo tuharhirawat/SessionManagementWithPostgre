@@ -317,67 +317,67 @@ namespace ZoomColorLab.Controllers
         //}
 
 
-        //// GET: Confirm Deletion (optional, if you want a separate page – not used here)
-        //[HttpGet]
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null) return NotFound();
+        // GET: Confirm Deletion (optional, if you want a separate page – not used here)
+        [HttpGet]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
 
-        //    var staff = await _context.StaffRegs
-        //        .Include(s => s.StaffDepartments)
-        //        .Include(s => s.StaffDesignations)
-        //        .Include(s => s.Addresses)
-        //        .Include(s => s.Contacts)
-        //        .FirstOrDefaultAsync(s => s.StaffId == id);
+            var staff = await _context.StaffRegs
+                .Include(s => s.StaffDepartments)
+                .Include(s => s.StaffDesignations)
+                .Include(s => s.Addresses)
+                .Include(s => s.Contacts)
+                .FirstOrDefaultAsync(s => s.StaffId == id);
 
-        //    if (staff == null) return NotFound();
+            if (staff == null) return NotFound();
 
-        //    // Optional: return View(staff); // if you want a delete confirmation view
-        //    return View(staff);
-        //}
+            // Optional: return View(staff); // if you want a delete confirmation view
+            return View(staff);
+        }
 
-        //// POST: Delete confirmed
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    try
-        //    {
-        //        var staff = await _context.StaffRegs
-        //            .Include(s => s.StaffDepartments)
-        //            .Include(s => s.StaffDesignations)
-        //            .Include(s => s.Addresses)
-        //            .Include(s => s.Contacts)
-        //            .Include(s => s.Credentials)
-        //            .FirstOrDefaultAsync(s => s.StaffId == id);
+        // POST: Delete confirmed
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            try
+            {
+                var staff = await _context.StaffRegs
+                    .Include(s => s.StaffDepartments)
+                    .Include(s => s.StaffDesignations)
+                    .Include(s => s.Addresses)
+                    .Include(s => s.Contacts)
+                    .Include(s => s.Credentials)
+                    .FirstOrDefaultAsync(s => s.StaffId == id);
 
-        //        if (staff == null)
-        //        {
-        //            TempData["ErrorMessage"] = "Staff not found.";
-        //            return RedirectToAction(nameof(Index));
-        //        }
+                if (staff == null)
+                {
+                    TempData["ErrorMessage"] = "Staff not found.";
+                    return RedirectToAction(nameof(Index));
+                }
 
-        //        // Remove related entries
-        //        _context.StaffDepartments.RemoveRange(staff.StaffDepartments);
-        //        _context.StaffDesignations.RemoveRange(staff.StaffDesignations);
-        //        _context.StaffAddresses.RemoveRange(staff.Addresses);
-        //        _context.StaffContacts.RemoveRange(staff.Contacts);
-        //        _context.StaffCredentials.RemoveRange(staff.Credentials);
+                // Remove related entries
+                _context.StaffDepartments.RemoveRange(staff.StaffDepartments);
+                _context.StaffDesignations.RemoveRange(staff.StaffDesignations);
+                _context.StaffAddresses.RemoveRange(staff.Addresses);
+                _context.StaffContacts.RemoveRange(staff.Contacts);
+                _context.StaffCredentials.RemoveRange(staff.Credentials);
 
-        //        // Remove the main Staff
-        //        _context.StaffRegs.Remove(staff);
+                // Remove the main Staff
+                _context.StaffRegs.Remove(staff);
 
-        //        await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-        //        TempData["SuccessMessage"] = "Staff deleted successfully!";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TempData["ErrorMessage"] = "Error deleting staff: " + ex.Message;
-        //    }
+                TempData["SuccessMessage"] = "Staff deleted successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error deleting staff: " + ex.Message;
+            }
 
-        //    return RedirectToAction(nameof(Index));
-        //}
+            return RedirectToAction(nameof(Index));
+        }
 
     }
 }
